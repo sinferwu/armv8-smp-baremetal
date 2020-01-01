@@ -1,11 +1,13 @@
 CROSS_COMPILE ?= aarch64-linux-gnu-
 
-kernel.elf: boot.o
-	$(CROSS_COMPILE)ld -T linker.ld -static boot.o -o kernel.elf
+asm-objs = boot.o el0_entry.o
 
-boot.o: boot.S
-	$(CROSS_COMPILE)gcc -nostdlib -nostartfiles -c boot.S -o boot.o
+kernel.elf: $(asm-objs)
+	$(CROSS_COMPILE)ld -T linker.ld -static $(asm-objs) -o kernel.elf
+
+$(asm-objs): %.o: %.S
+	$(CROSS_COMPILE)gcc -nostdlib -nostartfiles -c $< -o $@
 
 .PHONY: clean
 clean:
-	rm *.o kernel.elf kernel.bin
+	rm -f *.o kernel.elf kernel.bin

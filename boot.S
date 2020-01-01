@@ -1,4 +1,4 @@
-.text
+.section ".text.boot", "ax"
 .balign 4
 .global _start
 _start:
@@ -13,8 +13,27 @@ _start:
     // and the target Exception level is EL1, the asynchronous exception is
     // masked if PSTATE.{A,I,F} is 1. So we only need to set DAIF registers
     MSR DAIFClr, #0x7
+
+    // We ignore initializing general purpose registers
+    // Initialize the SP_EL1
+    LDR X1, =_stack_top
+    MOV SP, X1
+
+    // Initialize system control registers
+    // SA, SA0, CP15BEN, EOS, nTWI, nTWE, EIS, SPAN, nTLSMD, LSMAOE bits is set
+    LDR X1, =0x30C50838
+    MSR SCTLR_EL1, x1
+
+    // Enable FP registers accessing from EL1 and EL0
+    MOV X1, #(0x3 << 20)
+    MSR CPACR_EL1, X1
     
-    WFI
+    // Prepare entring EL0
+    MOV X0, #0b00000
+    MSR SPSR_EL1, X0
+    LDR X0, =_el0_entry
+    MSR ELR_EL1, X0
+    ERET
 
 .balign 0x800
 // vector table for EL1
@@ -36,6 +55,7 @@ curr_el_sp0_serr:
 
 .balign 0x80
 curr_el_spx_sync:
+    MRS X1, ESR_EL1
     WFI
 
 .balign 0x80
