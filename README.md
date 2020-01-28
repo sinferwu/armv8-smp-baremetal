@@ -5,8 +5,8 @@ This is a demo project for learning ARMv8 Aarch64 ISA and ARMv8 assembly.
 
 It supports:
 
-- [ ] FIQ/IRQ handling
-- [ ] Exception handling
+- [x] FIQ/IRQ handling
+- [x] Exception handling
 - [ ] Page table
 - [ ] SMP
 
@@ -15,7 +15,7 @@ It requires `qemu-system-aarch64` installed to run this project.
 ```bash
 make
 qemu-system-aarch64 -M virt -cpu cortex-a57 -nographic -smp 2 \
-        -kernel krenel.bin
+        -kernel krenel.elf
 ```
 
 # References
